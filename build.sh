@@ -15,10 +15,6 @@ function clean {
 	rm $PACKAGE_NAME*.tar.gz
 }
 
-function safecp {
-	[[ -f $(dirname $2)/$(basename $1) ]] || cp $1 $2 && echo "file $2 exists"
-}
-
 function build_version {
 	branch=$1.y
 	mkdir -p $SCRIPT_DIR/$BUILD_DIR
@@ -46,9 +42,9 @@ function build_version {
 		codec_dir=$SCRIPT_DIR/$PACKAGE_DIR/lib/modules/$ver${KERNEL_SUFFIXES[$i]}/kernel/sound/soc/codecs
 		echo "Package wm8960 overlay & codec of kernel version $ver${KERNEL_SUFFIXES[$i]}"
 		mkdir -p $overlay_dir
-		safecp arch/arm/boot/dts/overlays/wm8960-soundcard.dtbo $overlay_dir/
+		cp -n arch/arm/boot/dts/overlays/wm8960-soundcard.dtbo $overlay_dir/
 		mkdir -p $codec_dir
-		safecp sound/soc/codecs/snd-soc-wm8960.ko $codec_dir
+		cp -n sound/soc/codecs/snd-soc-wm8960.ko $codec_dir/
 	done
 	popd
 
