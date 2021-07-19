@@ -33,9 +33,11 @@ function build_version {
 			xcompile=arm-linux-gnueabihf-
 			arch=arm
 		fi
+
+		[[ $LIGHT_BUILD = 1 ]] && marg="M=sound/soc/codecs"
 		make ARCH=$arch CROSS_COMPILE=$xcompile ${DEFCONFS[$i]}
 		make ARCH=$arch CROSS_COMPILE=$xcompile modules_prepare
-		make -j$(($(nproc) + 1)) ARCH=$arch CROSS_COMPILE=$xcompile modules
+		make -j$(($(nproc) + 1)) ARCH=$arch CROSS_COMPILE=$xcompile $marg modules
 		make -j$(($(nproc) + 1)) ARCH=$arch CROSS_COMPILE=$xcompile dtbs
 
 		overlay_dir=$SCRIPT_DIR/$PACKAGE_DIR/boot/overlays
@@ -54,10 +56,26 @@ function build_version {
 	sudo rm -rf $PACKAGE_DIR
 }
 
+ARGS=()
+while [[ $# -gt 0 ]]; do
+	key="$1"
+
+	case $key in
+	-l|--light-build)
+		LIGHT_BUILD=1
+		shift
+		;;
+	*)
+		ARGS+=("$1")
+		shift
+		;;
+	esac
+done
+
 if [[ $1 = "clean" ]]; then
 	clean
 else
-	for v in $@; do
+	for v in ${ARGS[@]}; do
 		build_version $v
 	done
 fi
